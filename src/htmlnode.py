@@ -1,4 +1,3 @@
-
 class HTMLNode():
     def __init__(self, tag=None, value=None, children=None, props=None):
         self.tag = tag
@@ -22,3 +21,16 @@ class HTMLNode():
 
     def __repr__(self):
         return f"HTMLNode({self.tag}, {self.value}, children: {self.children}, {self.props})"
+
+class LeafNode(HTMLNode):
+    def __init__(self, tag, value, props=None):
+        super().__init__(tag=tag, value=value, children=None, props=props)
+
+    def to_html(self):
+        if self.value is None:
+            raise ValueError("self.value is not valid")
+        if self.tag is None:
+            return self.value
+        else:
+            attrs = self.props_to_html()
+            return f"<{self.tag}{attrs}>{self.value}</{self.tag}>"
