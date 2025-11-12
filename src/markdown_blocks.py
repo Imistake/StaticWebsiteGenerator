@@ -36,7 +36,7 @@ def block_to_block_type(markdown):
     is_quote = True
     for line in lines:
         s = line.strip()
-        if len(s) == 0 or not s.startswith("> "):
+        if len(s) == 0 or not s.startswith(">"):
             is_quote = False
             break
     if is_quote:
