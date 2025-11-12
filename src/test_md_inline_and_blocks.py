@@ -1,12 +1,12 @@
 import unittest
-from helpers import (
+from markdown_blocks import markdown_to_blocks
+from inline_markdown import (
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
     extract_markdown_images,
     extract_markdown_links,
     text_to_textnodes,
-    markdown_to_blocks,
 )
 
 from textnode import TextNode, TextType
