@@ -1,5 +1,5 @@
 import unittest
-from markdown_blocks import markdown_to_blocks
+from markdown_blocks import markdown_to_blocks, block_to_block_type
 from inline_markdown import (
     split_nodes_delimiter,
     split_nodes_image,
@@ -8,7 +8,7 @@ from inline_markdown import (
     extract_markdown_links,
     text_to_textnodes,
 )
-
+from markdown_blocks import BlockType
 from textnode import TextNode, TextType
 
 
@@ -328,6 +328,52 @@ A paragraph
     """
         blocks = markdown_to_blocks(md)
         self.assertEqual(blocks, ["- a\n- b\n- c", "A paragraph"])
+
+    
+class TestBlockToBlockType(unittest.TestCase):
+    def test_block_types(self):
+        cases = [
+            ("# Title", BlockType.HEADING),
+            ("```\ncode\n```", BlockType.CODE),
+            ("> a\n> b", BlockType.QUOTE),
+            ("- a\n- b", BlockType.UNORDERED_LIST),
+            ("1. a\n2. b", BlockType.ORDERED_LIST),
+            ("Just a paragraph.", BlockType.PARAGRAPH),
+        ]
+        for text, expected in cases:
+            with self.subTest(text=text):
+                self.assertEqual(block_to_block_type(text), expected)
+
+    def test_block_types_edges(self):
+        cases = [
+            # Heading edges
+            ("####### too many", BlockType.PARAGRAPH),
+            ("##NoSpace", BlockType.PARAGRAPH),
+            ("# ", BlockType.PARAGRAPH),
+
+            # Code edges
+            ("```\n```", BlockType.CODE),            
+            ("``` code\n```", BlockType.PARAGRAPH),
+            ("```\nmissing end", BlockType.PARAGRAPH),
+
+            # Quote edges
+            ("> ok\nnot quote", BlockType.PARAGRAPH),
+            (">", BlockType.PARAGRAPH),
+
+            # Unordered edges
+            ("-a", BlockType.PARAGRAPH),
+            ("- item\n* star", BlockType.PARAGRAPH),
+            ("- item\n- ", BlockType.PARAGRAPH),
+
+            # Ordered edges
+            ("2. a\n3. b", BlockType.PARAGRAPH),      # must start at 1
+            ("1.a", BlockType.PARAGRAPH),             # missing space
+            ("1. a\n3. c", BlockType.PARAGRAPH),      # non-consecutive
+            ("1. a\n2. b\n", BlockType.PARAGRAPH),    # trailing blank line
+        ]
+        for text, expected in cases:
+            with self.subTest(text=text):
+                self.assertEqual(block_to_block_type(text), expected)
 
 if __name__ == "__main__":
     unittest.main()
