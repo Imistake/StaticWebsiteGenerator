@@ -89,3 +89,11 @@ def text_to_textnodes(text):
     nodes = split_nodes_link(nodes)
     return nodes
 
+def markdown_to_blocks(markdown):
+    new_blocks = markdown.split("\n\n")
+    stripped = []
+    for block in new_blocks:
+        clean = block.strip()
+        if clean != "":
+            stripped.append(clean)
+    return stripped
